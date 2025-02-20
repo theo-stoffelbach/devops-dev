@@ -5,11 +5,15 @@
 ```bash
 npm install
 ```
-3. Run prisma migrations
+3. Initiate database (make sure .env is correct and valid)
 ```bash
-npx prisma migrate dev
+npx prisma db push
 ```
 4. Run the server in detached mode (make sure to adapt the env with DATABASE_URL)
+5. Want to have an admin account, run the seeder
+```bash
+npx prisma db seed
+```
 
 ## What to do
 - [ ] Add a Dockerfile

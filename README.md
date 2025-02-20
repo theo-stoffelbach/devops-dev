@@ -14,6 +14,7 @@ On the `front` folder, you will find the source code of the front-end applicatio
 ```
 DATABASE_URL=file:./file.db
 JWT_SECRET=your_secret
+BCRYPT_SALT_ROUNDS=10
 ```
 
 ### Run the back
