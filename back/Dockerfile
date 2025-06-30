@@ -40,6 +40,11 @@ HEALTHCHECK --interval=10s --timeout=3s --start-period=5s --retries=3 \
 CMD ["/app/start.sh"]
 
 # === COMMANDS MEMO ===
-# docker build -t backend-api:latest .
-# docker tag backend-api:latest rg.fr-par.scw.cloud/namespace-theo-stoffelbach-final/backend-api:latest  
-# docker push rg.fr-par.scw.cloud/namespace-theo-stoffelbach-final/backend-api:latest
+# docker build -t frontend-web:latest .
+# docker tag frontend-web:latest rg.fr-par.scw.cloud/namespace-theo-stoffelbach-final/frontend-web:latest
+# docker push rg.fr-par.scw.cloud/namespace-theo-stoffelbach-final/frontend-web:latest
+
+# docker run -d -p 3000:3000 rg.fr-par.scw.cloud/namespace-theo-stoffelbach-final/frontend-web:latest
+
+# docker pull rg.fr-par.scw.cloud/namespace-theo-stoffelbach-final/frontend-web:latest
+# docker image inspect rg.fr-par.scw.cloud/namespace-theo-stoffelbach-final/frontend-web:latest
