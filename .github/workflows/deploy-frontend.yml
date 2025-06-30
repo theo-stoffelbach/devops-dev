@@ -48,6 +48,47 @@ jobs:
           scw config set default-project-id ${{ secrets.SCW_PROJECT_ID }}
           scw config set default-region fr-par
 
-      - name: Update frontend container image
+      - name: Deploy or update frontend container
         run: |
-          scw container container update ${{ secrets.SCW_FRONT_CONTAINER_ID }} image=rg.fr-par.scw.cloud/namespace-theo-stoffelbach-final/my-front:latest
+          # Récupérer l'ID du namespace
+          NAMESPACE_ID=$(scw container namespace list -o json | jq -r '.[] | select(.name=="namespace-theo-stoffelbach-final") | .id')
+
+          if [ -z "$NAMESPACE_ID" ]; then
+            echo "❌ Namespace non trouvé!"
+            exit 1
+          fi
+
+          echo "✅ Namespace ID: $NAMESPACE_ID"
+
+          # Vérifier si le container existe déjà
+          CONTAINER_ID=$(scw container container list namespace-id=$NAMESPACE_ID -o json | jq -r '.[] | select(.name=="frontend-web") | .id // empty')
+
+          if [ -z "$CONTAINER_ID" ]; then
+            echo "🆕 Création du container frontend..."
+            CONTAINER_ID=$(scw container container create \
+              namespace-id=$NAMESPACE_ID \
+              name=frontend-web \
+              registry-image=rg.fr-par.scw.cloud/namespace-theo-stoffelbach-final/my-front:latest \
+              port=80 \
+              min-scale=0 \
+              max-scale=3 \
+              memory-limit=256 \
+              cpu-limit=250 \
+              privacy=public \
+              -o json | jq -r '.id')
+            echo "✅ Container créé: $CONTAINER_ID"
+          else
+            echo "🔄 Mise à jour du container existant: $CONTAINER_ID"
+            scw container container update \
+              container-id=$CONTAINER_ID \
+              registry-image=rg.fr-par.scw.cloud/namespace-theo-stoffelbach-final/my-front:latest
+          fi
+
+          # Déployer le container
+          echo "🚀 Déploiement du container..."
+          scw container container deploy container-id=$CONTAINER_ID
+
+          # Attendre et afficher l'URL
+          sleep 10
+          CONTAINER_URL=$(scw container container get container-id=$CONTAINER_ID -o json | jq -r '.domain_name')
+          echo "✅ Frontend déployé: https://$CONTAINER_URL"
