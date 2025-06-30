@@ -24,31 +24,23 @@ RUN npx prisma generate
 # Copy application code
 COPY . .
 
-# Create data directory for SQLite
-RUN mkdir -p /app/data
-
 # Expose port
 EXPOSE 3000
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:3000/items || exit 1
-
-# Create startup script with better error handling
-RUN echo '#!/bin/bash\n\
-set -e\n\
-echo "🔧 Setting up environment..."\n\
-export DATABASE_URL="${DATABASE_URL:-file:/app/data/prod.db}"\n\
-export JWT_SECRET="${JWT_SECRET:-fallback-secret-key}"\n\
-export DEFAULT_ADMIN_PASSWORD="${DEFAULT_ADMIN_PASSWORD:-admin123}"\n\
-export BCRYPT_SALT_ROUNDS="${BCRYPT_SALT_ROUNDS:-10}"\n\
-echo "📊 DATABASE_URL: $DATABASE_URL"\n\
-echo "🔧 Initializing database..."\n\
-npx prisma db push --force-reset || npx prisma migrate deploy || echo "⚠️ Database setup failed, continuing..."\n\
-echo "🌱 Seeding database..."\n\
-npx prisma db seed || echo "⚠️ Seed failed, continuing..."\n\
-echo "🚀 Starting server..."\n\
-npm start' > /app/start.sh && chmod +x /app/start.sh
-
 # Start the application
-CMD ["/app/start.sh"] 
+CMD ["node", "server.js"] 
+
+# docker pull rg.fr-par.scw.cloud/namespace-theo-stoffelbach-final/backend-api:latest
+# docker pull rg.fr-par.scw.cloud/namespace-theo-stoffelbach-final/frontend-web:latest
+
+# docker image inspect rg.fr-par.scw.cloud/namespace-theo-stoffelbach-final/backend-api:latest
+# docker image inspect rg.fr-par.scw.cloud/namespace-theo-stoffelbach-final/frontend-web:latest
+
+# docker build -t backend-api:latest .
+# docker build -t frontend-web:latest .
+
+# docker tag backend-api:latest rg.fr-par.scw.cloud/namespace-theo-stoffelbach-final/backend-api:latest
+# docker tag frontend-web:latest rg.fr-par.scw.cloud/namespace-theo-stoffelbach-final/frontend-web:latest
+
+# docker push rg.fr-par.scw.cloud/namespace-theo-stoffelbach-final/backend-api:latest
+# docker push rg.fr-par.scw.cloud/namespace-theo-stoffelbach-final/frontend-web:latest

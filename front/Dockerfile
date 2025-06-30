@@ -1,36 +1,31 @@
-# Multi-stage build for Vue.js frontend
+# Étape 1 : build du front
+FROM node:20-alpine AS build
 
-# Build stage
-FROM node:20-alpine as build-stage
-
+# Définit le répertoire de travail dans le conteneur
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+# Copie les fichiers de dépendances
+COPY package.json ./
 
-# Install dependencies
-RUN npm ci
+# Installe les dépendances
+RUN npm install
 
-# Copy source code
+# Copie tout le code source
 COPY . .
 
-# Set production environment variables
-ENV VITE_API_URL=/api
+# Ajoute l'argument de build pour l'URL de l'API
+ARG VITE_API_URL
+ENV VITE_API_URL=$VITE_API_URL
 
-# Build the application
+# Build le front
 RUN npm run build
 
-# Production stage with Nginx
-FROM nginx:alpine as production-stage
+# Étape 2 : image nginx pour servir le build
+FROM nginx:alpine
 
-# Copy built assets from build stage
-COPY --from=build-stage /app/dist /usr/share/nginx/html
+# Copie le build du front
+COPY --from=build /app/dist /usr/share/nginx/html
 
-# Copy custom nginx configuration
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-
-# Expose port 80
+# Expose le port 80
 EXPOSE 80
-
-# Start nginx
 CMD ["nginx", "-g", "daemon off;"] 
