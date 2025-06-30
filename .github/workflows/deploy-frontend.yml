@@ -34,9 +34,11 @@ jobs:
     steps:
       - name: Install Scaleway CLI
         run: |
-          curl -sSL https://install.scaleway.com/cli | bash
-          sudo mv bin/scw /usr/local/bin/scw
-          scw -v
+          # Méthode alternative plus fiable
+          wget -O scw-linux-x86_64 https://github.com/scaleway/scaleway-cli/releases/latest/download/scw-linux-x86_64
+          chmod +x scw-linux-x86_64
+          sudo mv scw-linux-x86_64 /usr/local/bin/scw
+          scw --version
 
       - name: Configure Scaleway CLI
         run: |
