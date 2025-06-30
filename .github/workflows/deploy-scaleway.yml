@@ -89,10 +89,11 @@ jobs:
             max-scale=5 \
             memory-limit=512 \
             cpu-limit=500 \
-            environment-variables.DATABASE_URL="file:./dev.db" \
-            environment-variables.JWT_SECRET="github-actions-jwt-secret" \
-            environment-variables.DEFAULT_ADMIN_PASSWORD="admin123" \
-            environment-variables.BCRYPT_SALT_ROUNDS="10" \
+                      environment-variables.DATABASE_URL="file:/app/data/prod.db" \
+          environment-variables.JWT_SECRET="github-actions-jwt-secret" \
+          environment-variables.DEFAULT_ADMIN_PASSWORD="admin123" \
+          environment-variables.BCRYPT_SALT_ROUNDS="10" \
+          environment-variables.NODE_ENV="production" \
             privacy=public \
             -o json | jq -r '.id')
             

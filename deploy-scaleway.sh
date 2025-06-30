@@ -110,10 +110,11 @@ BACKEND_CONTAINER=$(scw container container create \
   max-scale=5 \
   memory-limit=512 \
   cpu-limit=500 \
-  environment-variables.DATABASE_URL="file:./dev.db" \
+  environment-variables.DATABASE_URL="file:/app/data/prod.db" \
   environment-variables.JWT_SECRET="scaleway-jwt-secret-2024" \
   environment-variables.DEFAULT_ADMIN_PASSWORD="admin123" \
   environment-variables.BCRYPT_SALT_ROUNDS="10" \
+  environment-variables.NODE_ENV="production" \
   privacy=public \
   -o json | jq -r '.id')
 
