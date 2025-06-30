@@ -1,44 +1,47 @@
-name: Build, Push & Deploy Backend on Scaleway
+name: 🚀 Build & Push Backend to Scaleway
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
+  workflow_dispatch:
 
 jobs:
   build-and-push:
+    name: Build & Push Backend
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: 📦 Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Docker Buildx
+      - name: 🐳 Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Log in to Scaleway Container Registry
+      - name: 🔐 Login to Scaleway Container Registry
         run: |
-          echo "${{ secrets.SCW_SECRET_KEY }}" | docker login rg.${{ secrets.SCW_REGISTRY_REGION }}.scw.cloud/${{ secrets.SCW_REGISTRY_NAMESPACE }} -u ${{ secrets.SCW_ACCESS_KEY }} --password-stdin
+          echo "${{ secrets.SCW_SECRET_KEY }}" | docker login rg.fr-par.scw.cloud -u nologin --password-stdin
 
-      - name: Build Docker image
+      - name: 🏗️ Build Docker image
+        working-directory: ./back
         run: |
           docker build -t backend-api:latest .
 
-      - name: Tag Docker image for Scaleway
+      - name: 🏷️ Tag Docker image for Scaleway
         run: |
-          docker tag backend-api:latest rg.${{ secrets.SCW_REGISTRY_REGION }}.scw.cloud/${{ secrets.SCW_REGISTRY_NAMESPACE }}/backend-api:latest
+          docker tag backend-api:latest rg.fr-par.scw.cloud/namespace-theo-stoffelbach-final/backend-api:latest
 
-      - name: Push Docker image to Scaleway Registry
+      - name: 📤 Push Docker image to Scaleway Registry
         run: |
-          docker push rg.${{ secrets.SCW_REGISTRY_REGION }}.scw.cloud/${{ secrets.SCW_REGISTRY_NAMESPACE }}/backend-api:latest
+          docker push rg.fr-par.scw.cloud/namespace-theo-stoffelbach-final/backend-api:latest
 
-      - name: Redeploy Scaleway Serverless Container
-        env:
-          SCW_ACCESS_KEY: ${{ secrets.SCW_ACCESS_KEY }}
-          SCW_SECRET_KEY: ${{ secrets.SCW_SECRET_KEY }}
-          SCW_CONTAINER_ID: ${{ secrets.SCW_CONTAINER_ID }}
+      - name: ✅ Build Summary
         run: |
-          curl -X POST \
-            -u "${SCW_ACCESS_KEY}:${SCW_SECRET_KEY}" \
-            -H "Content-Type: application/json" \
-            "https://api.scaleway.com/containers/v1beta1/regions/${{ secrets.SCW_REGISTRY_REGION }}/containers/${SCW_CONTAINER_ID}/deploy"
+          echo "## 🎉 Backend Build Successful!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📦 Image Details" >> $GITHUB_STEP_SUMMARY
+          echo "- **Registry:** rg.fr-par.scw.cloud" >> $GITHUB_STEP_SUMMARY
+          echo "- **Namespace:** namespace-theo-stoffelbach-final" >> $GITHUB_STEP_SUMMARY
+          echo "- **Image:** backend-api:latest" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "🚀 **Ready for deployment on Scaleway Serverless Containers!**" >> $GITHUB_STEP_SUMMARY
