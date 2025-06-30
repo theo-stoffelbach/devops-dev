@@ -22,7 +22,7 @@ jobs:
       - name: Build Backend
         working-directory: ./back
         run: |
-          npm ci
+          npm install
           echo "DATABASE_URL=\"file:./dev.db\"" > .env
           echo "JWT_SECRET=build-key" >> .env
           echo "DEFAULT_ADMIN_PASSWORD=admin123" >> .env
@@ -33,7 +33,7 @@ jobs:
       - name: Build Frontend
         working-directory: ./front
         run: |
-          npm ci
+          npm install
           echo "VITE_API_URL=/api" > .env
           npm run build
 
