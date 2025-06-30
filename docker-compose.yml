@@ -1,0 +1,74 @@
+version: "3.8"
+
+services:
+  # Backend API (Node.js)
+  api:
+    build:
+      context: ./back
+      dockerfile: Dockerfile
+    container_name: shop-api
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=file:./dev.db
+      - JWT_SECRET=super-secret-jwt-key-for-docker-123456789
+      - DEFAULT_ADMIN_PASSWORD=admin123
+      - BCRYPT_SALT_ROUNDS=10
+      - NODE_ENV=production
+      - PRISMA_CLI_QUERY_ENGINE_TYPE=binary
+      - PRISMA_CLIENT_ENGINE_TYPE=binary
+    volumes:
+      - api_data:/app
+    networks:
+      - shop-network
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--no-verbose",
+          "--tries=1",
+          "--spider",
+          "http://localhost:3000/items",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Frontend Web App (Vue.js + Nginx)
+  frontend:
+    build:
+      context: ./front
+      dockerfile: Dockerfile
+    container_name: shop-frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      api:
+        condition: service_healthy
+    networks:
+      - shop-network
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--no-verbose",
+          "--tries=1",
+          "--spider",
+          "http://localhost/",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  api_data:
+    driver: local
+
+networks:
+  shop-network:
+    driver: bridge
