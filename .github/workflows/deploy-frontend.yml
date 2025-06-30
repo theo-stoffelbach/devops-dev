@@ -39,7 +39,7 @@ jobs:
           wget -O scw "https://github.com/scaleway/scaleway-cli/releases/download/v${VERSION}/scaleway-cli_${VERSION}_linux_amd64"
           chmod +x scw
           sudo mv scw /usr/local/bin/scw
-          scw --version
+          scw version
 
       - name: Configure Scaleway CLI
         run: |
